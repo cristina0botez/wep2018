@@ -11,7 +11,7 @@ def collect_places():
             state, city = extract_state_and_city(user_input)
             store_visit(state, city, visits)
         except ValueError:
-            print("That's not a legal city, state combination")
+            print("That's not a legal city, country combination")
         except InputFinished:
             break
 

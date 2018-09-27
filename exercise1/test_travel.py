@@ -68,24 +68,28 @@ Barcelona, Spain
 
 
 def test_no_places(monkeypatch):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', EMPTY_PLACE_INPUTS)
     collect_places()
     assert len(visits) == 0
 
 
 def test_one_place(monkeypatch):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', ONE_PLACE_INPUT)
     collect_places()
     assert len(visits) == 1
 
 
 def test_many_places(monkeypatch):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', MANY_PLACE_INPUTS)
     collect_places()
     assert len(visits) == 3
 
 
 def test_invalid_input(monkeypatch, capsys):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', StringIO('abcd\n\n'))
     collect_places()
     captured_out, captured_err = capsys.readouterr()
@@ -95,6 +99,7 @@ def test_invalid_input(monkeypatch, capsys):
 
 
 def test_sorting_cities(monkeypatch, capsys):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', StringIO('Shanghai, China\nBeijing, China'
                                               '\nBeijing, China\n\n'))
     collect_places()
@@ -108,6 +113,7 @@ def test_sorting_cities(monkeypatch, capsys):
 
 
 def test_sorting_countries(monkeypatch, capsys):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', StringIO('Haifa, Israel\nLondon, England'
                                               '\nNew York, USA\n\n'))
     collect_places()
@@ -123,6 +129,7 @@ def test_sorting_countries(monkeypatch, capsys):
 
 
 def test_counting(monkeypatch, capsys):
+    visits.clear()
     monkeypatch.setattr('sys.stdin', StringIO('Shanghai, China\nBeijing, China'
                                               '\nBeijing, China\n\n'))
     collect_places()
