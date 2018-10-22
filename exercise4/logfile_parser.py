@@ -32,7 +32,7 @@ class LogDicts:
         return result
 
     def dicts(self, key=None):
-        return self._get_dict_list(self._entries)
+        return self._get_dict_list(self._entries, key)
 
     def iterdicts(self, key=None):
         return iter(self.dicts(key))

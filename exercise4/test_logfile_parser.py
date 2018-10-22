@@ -1,3 +1,4 @@
+from ipaddress import ip_address
 import operator
 
 from logfile_parser import LogDicts
@@ -63,7 +64,7 @@ def test_for_ip():
     ld = LogDicts(LOGFILENAME)
     matching_requests = ld.for_ip("65.55.106.183")
     assert len(matching_requests) == 2
-    assert all([one_item['ip_address'] == '65.55.106.183'
+    assert all([one_item['ip_address'] == ip_address('65.55.106.183')
                 for one_item in matching_requests])
 
 
