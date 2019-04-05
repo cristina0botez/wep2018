@@ -3,12 +3,15 @@ from functools import total_ordering
 
 
 @total_ordering
-class Person(namedtuple('PersonBase', ('first', 'last'))):
+class OrderlyPerson:
 
     def __lt__(self, other):
         result = (self.last < other.last or
                   self.last == other.last and self.first < other.first)
         return result
+
+
+class Person(OrderlyPerson, namedtuple('PersonBase', ('first', 'last'))):
 
     def __str__(self):
         return "{0.last}, {0.first}".format(self)
@@ -27,7 +30,8 @@ class Table:
         return iter(self._guests)
 
     def __str__(self):
-        return '{{{}}}'.format('; '.join([str(g) for g in self._guests]))
+        sorted_guests = sorted(self._guests)
+        return '{{{}}}'.format('; '.join([str(g) for g in sorted_guests]))
 
     @property
     def capacity(self):
@@ -46,8 +50,8 @@ class Table:
             self._guests.add(guest)
         else:
             raise TableFull(
-                'Guest {} cannot be seated at table #{}. The table is full.'
-                .format(guest, self._number)
+                'Guest {} cannot be seated at this table. The table is full.'
+                .format(guest)
             )
 
     def remove(self, guest):
