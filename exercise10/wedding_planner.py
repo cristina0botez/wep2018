@@ -71,15 +71,17 @@ class GuestList:
         self._number_of_tables = number_of_tables
 
     def __len__(self):
-        result = (sum([table.occupied_seats for table in self._tables]) +
-                  len(self._unassigned))
+        result = (
+            sum([table.occupied_seats for table in self._tables.values()]) +
+            len(self._unassigned)
+        )
         return result
 
     def __str__(self):
         result = ''
-        for table_number, table in self._guests():
+        for table_number, table in self._tables.items():
             result += '{}\n'.format(table_number)
-            for guest in table:
+            for guest in sorted(table):
                 result += '\t{}\n'.format(guest)
         return result
 
