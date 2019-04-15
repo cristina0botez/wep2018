@@ -27,7 +27,7 @@ class Table:
         return guest in self._guests
 
     def __iter__(self):
-        return iter(self._guests)
+        return iter(sorted(self._guests))
 
     def __str__(self):
         sorted_guests = sorted(self._guests)
@@ -80,9 +80,10 @@ class GuestList:
     def __str__(self):
         result = ''
         for table_number, table in self._tables.items():
-            result += '{}\n'.format(table_number)
-            for guest in sorted(table):
-                result += '\t{}\n'.format(guest)
+            if table.occupied_seats > 0:
+                result += '{}\n'.format(table_number)
+                for guest in sorted(table):
+                    result += '\t{}\n'.format(guest)
         return result
 
     def assign(self, guest, table_number):
@@ -104,11 +105,11 @@ class GuestList:
             self._tables[table_number].add(guest)
 
     def table(self, number):
-        table_number = self._validate_table_number(number)
-        return list(self._table[table_number])
+        self._validate_table_number(number)
+        return list(self._tables[number])
 
     def unassigned(self):
-        return list(self._unassigned)
+        return list(sorted(self._unassigned))
 
     def find_table_for(self, guest):
         if guest in self._unassigned:
@@ -119,8 +120,9 @@ class GuestList:
         raise NotRegistered(guest)
 
     def free_space(self):
-        result = {table_number: table.capacity - table.occupied_seats
-                  for table_number, table in self._tables}
+        result = {table_number: (self._tables[table_number].capacity -
+                                 self._tables[table_number].occupied_seats)
+                  for table_number in range(1, self._number_of_tables + 1)}
         return result
 
     def guests(self):
@@ -129,8 +131,9 @@ class GuestList:
         return result
 
     def _validate_table_number(self, number):
-        out_of_range = number < 0 or self._number_of_tables > number
-        if number is not None and out_of_range:
+        out_of_range = (number is not None and
+                        (number <= 0 or self._number_of_tables < number))
+        if out_of_range:
             raise ValueError(
                 'Table number {} out of range. Must be between 1 and {}'
                 .format(number, self._number_of_tables)

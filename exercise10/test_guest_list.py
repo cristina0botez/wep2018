@@ -1,6 +1,6 @@
 from pytest import mark, raises
 
-from wedding_planner import GuestList, Table
+from wedding_planner import GuestList, Table, Person, NotRegistered
 
 
 def test_guest_list_creates_empty_table_list():
@@ -63,7 +63,7 @@ def test_no_string_representation_for_unassigned_guests():
     assert str(gl) == ''
 
 
-@mark.parmetrize('invalid_number', [0, 6])
+@mark.parametrize('invalid_number', [0, 6])
 def test_assigning_guest_to_invalid_table_number_raises_error(invalid_number):
     gl = GuestList(5, 10)
     with raises(ValueError):
@@ -98,3 +98,110 @@ def test_reassigning_guest_to_none_moves_guest_to_unassigned_list():
     assert 'Ann' in gl._unassigned
     assert len(gl._tables) == 1
     assert gl._tables[3].occupied_seats == 0
+
+
+def test_empty_table_returns_no_guests():
+    gl = GuestList(5, 10)
+    result = gl.table(1)
+    assert result == []
+
+
+def test_table_with_guests_returns_them_in_a_list_in_ascending_ordered():
+    gl = GuestList(5, 10)
+    gl._tables[1].add('Sam')
+    gl._tables[1].add('Ann')
+    gl._tables[1].add('Phill')
+    gl._tables[1].add('Sarah')
+    gl._tables[1].add('Bill')
+    result = gl.table(1)
+    assert result == ['Ann', 'Bill', 'Phill', 'Sam', 'Sarah']
+
+
+def test_unassigned_returns_list_of_guests_assigned_to_none():
+    gl = GuestList(5, 10)
+    gl.assign('Beth', None)
+    gl.assign('Vanessa', None)
+    gl.assign('Anna', None)
+    result = gl.unassigned()
+    assert result == ['Anna', 'Beth', 'Vanessa']
+
+
+def test_find_table_for_returns_first_found_table_number_for_guest():
+    gl = GuestList(10, 2)
+    gl._tables[2].add('Annabella')
+    gl._tables[4].add('Ann')
+    gl._tables[7].add('Ann')
+    result = gl.find_table_for('Ann')
+    assert result == 4
+
+
+def test_table_number_for_unassigned_guest_is_none():
+    gl = GuestList(10, 2)
+    gl._unassigned.add('Ann')
+    result = gl.find_table_for('Ann')
+    assert result is None
+
+
+def test_unregistered_guest_raises_error():
+    gl = GuestList(10, 2)
+    with raises(NotRegistered):
+        gl.find_table_for('Ann')
+
+
+def test_free_space_returned_for_all_tables_in_empty_guest_list():
+    gl = GuestList(3, 7)
+    result = gl.free_space()
+    assert result == {1: 7, 2: 7, 3: 7}
+
+
+def test_free_space_returns_0_when_all_tables_occupied():
+    gl = GuestList(2, 2)
+    gl._tables[1].add('Ann')
+    gl._tables[1].add('Bill')
+    gl._tables[2].add('Dan')
+    gl._tables[2].add('Paul')
+    result = gl.free_space()
+    assert result == {1: 0, 2: 0}
+
+
+def test_free_space_returned_for_each_table():
+    gl = GuestList(4, 3)
+    gl._tables[1].add('Ann')
+    gl._tables[1].add('Bill')
+    gl._tables[3].add('Dan')
+    gl._tables[3].add('Paul')
+    gl._tables[3].add('Fran')
+    gl._tables[4].add('Phill')
+    result = gl.free_space()
+    assert result == {1: 1, 2: 3, 3: 0, 4: 2}
+
+
+def test_guests_empty_for_empty_guest_list():
+    gl = GuestList(2, 2)
+    result = gl.guests()
+    assert result == []
+
+
+def test_unassigned_guests_not_listed():
+    gl = GuestList(2, 2)
+    gl._unassigned.add('Ann')
+    result = gl.guests()
+    assert result == []
+
+
+def test_guests_returns_guest_list_ordered_by_table_number_last_and_first_names():  # noqa
+    gl = GuestList(3, 4)
+    gl._tables[3].add(Person('Gena', 'Frank'))
+    gl._tables[1].add(Person('Zack', 'Paulson'))
+    gl._tables[4].add(Person('Andrew', 'Andrews'))
+    gl._tables[3].add(Person('Samantha', 'Andrews'))
+    gl._tables[1].add(Person('Gena', 'Paulson'))
+    gl._tables[3].add(Person('Paula', 'Bayleys'))
+    result = gl.guests()
+    expected = [Person('Gena', 'Paulson'),
+                Person('Zack', 'Paulson'),
+                Person('Samantha', 'Andrews'),
+                Person('Paula', 'Bayleys'),
+                Person('Gena', 'Frank'),
+                Person('Andrew', 'Andrews')]
+    assert result == expected
